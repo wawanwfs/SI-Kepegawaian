@@ -1,0 +1,180 @@
+<div class="section-body">
+        <div class="card">
+            <div class="card-header">
+                <h4>Management User</h4>
+            </div>
+            <table class="table table-sm table-bordered" id="datauser" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>ID User</th>
+                        <th>Nama User</th>
+                        <th>Level</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div class="viewmodal" style="display: none;"></div>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+            <script>
+                $(document).ready(function() {
+                    $('.btntambah').click(function(e) {
+                        e.preventDefault();
+                        $.ajax({
+                            type: "get",
+                            url: "users/formtambah",
+                            success: function(response) {
+                                $('.viewmodal').html(response).show();
+                                $('#modaltambah').on('shown.bs.modal', function(event) {
+                                    $('#iduser').focus();
+                                })
+                                $('#modaltambah').modal('show');
+                            }
+                        });
+                    });
+
+                    dataUser = $('#datauser').Datatable({
+                        processing: true,
+                        serverSide: true,
+                        ajax: '/users/listData',
+                        order: [],
+                        columns: [{
+                                data: 'nomor',
+                                width: 10
+                            },
+                            {
+                                data: 'userid'
+                            },
+                            {
+                                data: 'username'
+                            },
+                            {
+                                data: 'levelnama'
+                            },
+                            {
+                                data: 'status',
+                                orderable: false,
+                                width: 25
+                            },
+                            {
+                                data: 'aksi',
+                                orderable: false,
+                                width: 20
+                            },
+                        ]
+                    });
+                });
+
+                function view(userid) {
+                    $.ajax({
+                        type: "post",
+                        url: "/users/formedit",
+                        data: {
+                            userid: userid
+                        },
+                        success: function(response) {
+                            $('.viewmodal').html(response).show();
+                            $('#modaledit').on('shown.bs.modal', function(event) {
+                                $('#namalengkap').focus();
+                            })
+                            $('#modaledit').modal('show');
+                        }
+                    });
+                }
+            </script>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+<!-- <link rel="stylesheet" href="< ?= base_url(); ?>/assets/DataTables/DataTables-1.12.1/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="< ?= base_url(); ?>/assets/DataTables/DataTables-1.12.1/css/jquery.dataTables.min.css"> -->
+    <!-- <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script> -->
+    <!-- <script href="< ?= base_url(); ?>/assets/DataTables/DataTables-1.12.1/js/jquery.dataTables.min.js"></script>
+    <script href="< ?= base_url(); ?>/assets/DataTables/DataTables-1.12.1/js/dataTables.bootstrap5.min.js"></script> -->
+
+
+
+
+
+
+
+
+
+    <script>
+                $(document).ready(function() {
+                    $('.btntambah').click(function(e) {
+                        e.preventDefault();
+                        $.ajax({
+                            type: "get",
+                            url: "users/formtambah",
+                            success: function(response) {
+                                $('.viewmodal').html(response).show();
+                                $('#modaltambah').on('shown.bs.modal', function(event) {
+                                    $('#iduser').focus();
+                                })
+                                $('#modaltambah').modal('show');
+                            }
+                        });
+                    });
+
+                    dataUser = $('#datauser').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        ajax: '/users/listData',
+                        order: [],
+                        columns: [{
+                                data: 'nomor',
+                                width: 10
+                            },
+                            {
+                                data: 'userid'
+                            },
+                            {
+                                data: 'username'
+                            },
+                            {
+                                data: 'levelnama'
+                            },
+                            {
+                                data: 'status',
+                                orderable: false,
+                                width: 25
+                            },
+                            {
+                                data: 'aksi',
+                                orderable: false,
+                                width: 20
+                            },
+                        ]
+                    });
+                });
+
+                function view(userid) {
+                    $.ajax({
+                        type: "post",
+                        url: "/users/formedit",
+                        data: {
+                            userid: userid
+                        },
+                        success: function(response) {
+                            $('.viewmodal').html(response).show();
+                            $('#modaledit').on('shown.bs.modal', function(event) {
+                                $('#namalengkap').focus();
+                            })
+                            $('#modaledit').modal('show');
+                        }
+                    });
+                }
+            </script>
