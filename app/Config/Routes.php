@@ -21,7 +21,7 @@ $routes->setDefaultController('Home');
 $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
 $routes->set404Override();
-$routes->setAutoRoute(true);
+$routes->setAutoRoute(false);
 // The Auto Routing (Legacy) is very dangerous. It is easy to create vulnerable apps
 // where controller filters or CSRF protection are bypassed.
 // If you don't want to define all routes, please use the Auto Routing (Improved).
@@ -37,50 +37,83 @@ $routes->setAutoRoute(true);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
-// $routes->get('/login', 'Home::login');
-$routes->get('/login', 'login::index');
+$routes->get('/login', 'Login::index');
+$routes->get('/logout', 'Login::logout');
 
-$routes->get('/daftarkaryawan', 'Karyawan::index');
-$routes->get('/karyawan/pdf', 'Pdf::print');
-$routes->post('/daftarkaryawan(:any)', 'Karyawan::index/$1');
-$routes->post('/save', 'Karyawan::save');
-$routes->post('/(:num)', 'Karyawan::update/($1)');
-
-$routes->delete('/daftarkaryawan/delete/(:num)', 'Karyawan::delete/($1)');
-$routes->get('/daftarkaryawan/edit/(:segment)', 'Karyawan::edit/($1)');
-$routes->get('/daftarkaryawan/detail/(:segment)', 'Karyawan::detail/($1)');
-
-$routes->get('/daftarkehadiran', 'Kehadiran::index');
-$routes->post('/daftarkehadiran(:any)', 'Kehadiran::index/$1');
-
-$routes->get('/izinkaryawan', 'Izin::index');
-$routes->post('/izinkaryawan(:any)', 'Izin::index/$1');
-$routes->post('/prosesizin/save', 'Izin::save');
+// Karyawan
+$routes->get('/karyawan', 'Karyawan::index');
+$routes->get('/karyawan/create', 'Karyawan::create');
+$routes->post('/karyawan/store', 'Karyawan::store');
+$routes->get('/karyawan/edit/(:num)', 'Karyawan::edit/$1');
+$routes->post('/karyawan/update/(:num)', 'Karyawan::update/$1');
+$routes->delete('/karyawan/delete/(:num)', 'Karyawan::delete/$1');
+$routes->get('/karyawan/detail/(:segment)', 'Karyawan::detail/$1');
+$routes->get('/karyawan/pdf', 'Karyawan::pdf');
 
 
-$routes->get('/tunjangan', 'tunjangan::index');
-$routes->post('/tunjangan(:any)', 'tunjangan::index/$1');
-$routes->post('/ubah/tunjangan/(:num)', 'tunjangan::ubah/$1');
+// Kehadiran
+$routes->get('/kehadiran', 'Kehadiran::index');
+$routes->get('/kehadiran/create', 'Kehadiran::create');
+$routes->post('/kehadiran/store', 'Kehadiran::store');
+
+// Izin
+$routes->get('/izin', 'Izin::index');
+$routes->get('/izin/create', 'Izin::create');
+$routes->post('/izin/store', 'Izin::store');
+
+// Gaji
+$routes->get('/gaji', 'Gaji::index');
+$routes->get('/gaji/slip/(:num)', 'Gaji::slip/$1');
 
 
-$routes->get('/potongan', 'potongan::index');
-$routes->post('/potongan(:any)', 'potongan::index/$1');
-$routes->post('/ubah/potongan/(:num)', 'potongan::ubah/$1');
+// Tunjangan
+$routes->get('/tunjangan', 'Tunjangan::index');
+$routes->post('/tunjangan/update/(:num)', 'Tunjangan::update/$1');
 
-$routes->get('/gaji', 'gaji::index');
-$routes->post('/gaji(:any)', 'gaji::index/$1');
+// Potongan
+$routes->get('/potongan', 'Potongan::index');
+$routes->post('/potongan/update/(:num)', 'Potongan::update/$1');
+
+// Users
+$routes->get('/users', 'Users::index');
+$routes->get('/users/create', 'Users::create');
+$routes->post('/users/store', 'Users::store');
+$routes->get('/users/edit/(:num)', 'Users::edit/$1');
+$routes->post('/users/update/(:num)', 'Users::update/$1');
+$routes->delete('/users/delete/(:num)', 'Users::delete/$1');
+
+// Cuti
+$routes->get('/cuti', 'Cuti::index');
+$routes->get('/cuti/create', 'Cuti::create');
+$routes->post('/cuti/store', 'Cuti::store');
+$routes->get('/cuti/approve/(:num)', 'Cuti::approve/$1');
+$routes->get('/cuti/reject/(:num)', 'Cuti::reject/$1');
+
+// Penilaian Kinerja
+$routes->get('/penilaian_kinerja', 'PenilaianKinerja::index');
+$routes->get('/penilaian_kinerja/create', 'PenilaianKinerja::create');
+$routes->post('/penilaian_kinerja/store', 'PenilaianKinerja::store');
 
 
+$routes->get('/migrate', function() {
+    $migrate = \Config\Services::migrations();
+    try {
+        $migrate->latest();
+        echo 'Migrations run successfully!';
+    } catch (\Throwable $e) {
+        echo $e->getMessage();
+    }
+});
 
-
-
-
-
-
-
-$routes->get('users', 'users::index');
-$routes->get('users/formtambah', 'users::formtambah');
-$routes->post('users', 'users::formtambah');
+$routes->get('/seed', function() {
+    $seeder = \Config\Database::seeder();
+    try {
+        $seeder->call('KaryawanSeeder');
+        echo 'Seeder run successfully!';
+    } catch (\Throwable $e) {
+        echo $e->getMessage();
+    }
+});
 
 
 

@@ -15,36 +15,23 @@ class Karyawan extends BaseController
     }
     public function index()
     {
-        $currentPage = $this->request->getVar('page_karyawan') ? $this->request->getVar('page_karyawan') : 1;
-
-        $keyword = $this->request->getVar('keyword') ? $this->request->getVar('keyword') : '';
-        if ($keyword) {
-            $karyawan = $this->karyawanModel->search($keyword);
-        } else {
-            $karyawan = $this->karyawanModel->karyawan()->orderBy('nik', 'ASC');
-        }
         $data = [
             'title' => 'SIK - Daftar Karyawan',
-            'validation' => \config\Services::validation(),
-            'karyawan' => $karyawan->paginate(10, 'karyawan'),
-            'pager' => $this->karyawanModel->pager,
-            'currentPage' => $currentPage,
-            'jumlah_karyawan' => $this->karyawanModel->countAll(),
+            'karyawan' => $this->karyawanModel->getkaryawan(),
         ];
-        return view('karyawan/daftar_karyawan', $data);
+        return view('karyawan/index', $data);
     }
 
-    public function detail($slug)
+    public function create()
     {
-        $slug = substr($slug, 1, -1);
         $data = [
-            'title' => 'SIK - Detail Karyawan',
-            'karyawan' => $this->karyawanModel->getkaryawan($slug),
+            'title' => 'SIK - Tambah Karyawan',
+            'validation' => \config\Services::validation(),
         ];
-        return view('karyawan/daftar_karyawan/detail_karyawan', $data);
+        return view('karyawan/create', $data);
     }
 
-    public function save()
+    public function store()
     {
         if (!$this->validate([
             'nik' => [
@@ -63,7 +50,7 @@ class Karyawan extends BaseController
                 ]
             ]
         ])) {
-            return redirect()->to('/daftarkaryawan')->withInput();
+            return redirect()->to('/karyawan/create')->withInput();
         }
 
         $filefoto = $this->request->getFile('foto');
@@ -91,35 +78,31 @@ class Karyawan extends BaseController
             'foto' => $namafoto
         ]);
         session()->setFlashdata('pesan', 'Data berhasil ditambahkan.');
-        return redirect()->to('/daftarkaryawan');
+        return redirect()->to('/karyawan');
     }
 
-    public function delete($id)
+    public function detail($slug)
     {
-        $id = substr($id, 1, -1);
-        $karyawan = $this->karyawanModel->find($id);
-        if ($karyawan['foto'] != 'default.jpg') {
-            unlink('./profile/' . $karyawan['foto']);
-        }
-        $this->karyawanModel->Delete($id);
-        session()->setFlashdata('pesan', 'Data berhasil dihapus.');
-        return redirect()->to('/daftarkaryawan');
+        $data = [
+            'title' => 'SIK - Detail Karyawan',
+            'karyawan' => $this->karyawanModel->getkaryawan($slug),
+        ];
+        return view('karyawan/detail', $data);
     }
 
-    public function edit($slug)
+    public function edit($id)
     {
-        $slug = substr($slug, 1, -1);
         $data = [
             'title' => 'SIK - Ubah Data Karyawan',
             'validation' => \config\Services::validation(),
-            'k' => $this->karyawanModel->getkaryawan($slug)
+            'karyawan' => $this->karyawanModel->find($id)
         ];
-        return view('karyawan/daftar_karyawan/edit', $data);
+        return view('karyawan/edit', $data);
     }
 
-    public function update($nik)
+    public function update($id)
     {
-        $karyawanLama = $this->karyawanModel->getkaryawan($this->request->getVar('slug'));
+        $karyawanLama = $this->karyawanModel->find($id);
         if ($karyawanLama['nik'] == $this->request->getVar('nik')) {
             $rule_nik = 'required';
         } else {
@@ -142,7 +125,7 @@ class Karyawan extends BaseController
                 ]
             ]
         ])) {
-            return redirect()->to('/daftarkaryawan/edit/' . $this->request->getVar('slug'))->withInput();
+            return redirect()->to('/karyawan/edit/' . $id)->withInput();
         }
         $fileFoto = $this->request->getFile('foto');
         if ($fileFoto->getError() == 4) {
@@ -150,12 +133,14 @@ class Karyawan extends BaseController
         } else {
             $namafoto = $fileFoto->getRandomName();
             $fileFoto->move('./profile/', $namafoto);
-            unlink('./profile/' . $karyawanLama['foto']);
+            if ($karyawanLama['foto'] != 'default.jpg') {
+                unlink('./profile/' . $karyawanLama['foto']);
+            }
         }
 
         $slug = url_title($this->request->getVar('nik'), '-', true);
         $this->karyawanModel->save([
-            'id' => $this->request->getVar('id'),
+            'id' => $id,
             'nik' =>  $this->request->getVar('nik'),
             'slug' => $slug,
             'nama' => $this->request->getVar('nama'),
@@ -174,6 +159,17 @@ class Karyawan extends BaseController
 
         session()->setFlashdata('pesan', 'Data berhasil diubah.');
 
-        return redirect()->to('daftarkaryawan');
+        return redirect()->to('/karyawan');
+    }
+
+    public function delete($id)
+    {
+        $karyawan = $this->karyawanModel->find($id);
+        if ($karyawan['foto'] != 'default.jpg') {
+            unlink('./profile/' . $karyawan['foto']);
+        }
+        $this->karyawanModel->Delete($id);
+        session()->setFlashdata('pesan', 'Data berhasil dihapus.');
+        return redirect()->to('/karyawan');
     }
 }
